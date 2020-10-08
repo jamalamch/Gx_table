@@ -14,58 +14,89 @@
 
 <body>
     <div class="container">
-        <h2>Alerts</h2>
-        <p>Alerts are created with the .alert class, followed by a contextual color classes:</p>
-        <!-- <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            <strong>Success!</strong> Indicates a successful or positive action.
-        </div> -->
+        <div class="row">
+            <div class="col-sm-10">
+                <h2>Alerts</h2>
+                <p>Alerts are created with the .alert class, followed by a contextual color classes:</p>
+            </div>
+            <div class="col-sm-2 mt-auto">
+                <button id="save" class="btn btn btn-secondary btn-lg px-5" type="button"> SAVE </button>
+                <a href="" id="a">click here to download your file</a>
+               <!-- <button id="download" class="btn btn btn-secondary btn-lg px-5" type="button"> download </button> -->
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-5 mt-5 custom-file mb-3">
+                <input type="file" class="custom-file-input" id="customFile" name="filename">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+            </div>
+        </div>
+
         <ul id="list" class="list-group list-group-flush">
-            <li class="list-group-item">
-                <button type="button" class="close">&times;</button>
-                First item
-            </li>
-            <li class="list-group-item">
-                Second item
-                <button type="button" class="close">&times;</button>
-            </li>
-            <li class="list-group-item">
-                Third item
-                <button type="button" class="close">&times;</button>
-            </li>
-            <li class="list-group-item">
-                Fourth item
-                <button type="button" class="close">&times;</button>
-            </li>
         </ul>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
-              <button id="addItem" class="btn btn-outline-primary" type="button">Add Item</button>  
+                <button id="addItem" class="btn btn-outline-primary" type="button">Add Item</button>
             </div>
             <input id="item-text" type="text" class="form-control" placeholder="Some text">
-          </div>
+        </div>
     </div>
+
     <script>
+        function additem(contene) {
+            var item = $("<li>" + contene + "</li>").attr({
+                class: 'list-group-item',
+            });
+            var close = $("<button>&times</>").attr({
+                type: "button",
+                class: 'close',
+            });
+            item.append(close);
+            $("#list").append(item);
+            close.one('click', function () {
+                close.parent().hide();
+            });
+        }
+        function chargeficher(date) {
+            data = JSON.parse(date);
+            console.debug(data);
+            data.forEach(function(item){
+                additem(item.contene);
+            });
+        }
+        function download(text, name, type) {
+            var a = $("#a");
+            var file = new Blob([text], {type: type});
+            a.href = URL.createObjectURL(file);
+            a.download = name;
+        }
+
         $(document).ready(function () {
-            $("#addItem").click(function (){
+            $("#addItem").click(function () {
                 var text = $(this).parent().parent().children(".form-control");
-                var item = $("<li>"+text.val()+"</li>").attr({
-                    class:'list-group-item',                      
-                });
+                additem(text.val());
                 text.val("");
-                var close = $("<button>&times</>").attr({
-                      type: "button",
-                      class:'close',                        
-                  });
-                  item.append(close);
-                $("#list").append(item);
-                close.one('click',function (){
-                    close.parent().hide();
-                });
             });
             $(".close").click(function () {
                 $(this).parent().hide();
             });
+            $("#save").click(function(){
+                download('file text', 'myfilename.txt', 'text/plain');
+            })
+        });
+
+        $(".custom-file-input").on("change", function() {
+        var url = $(this).val();
+        var fileName = url.split("\\").pop();
+         $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+
+        var fileReader = new FileReader();
+        fileReader.onload = function () {
+             var data = fileReader.result;
+             chargeficher(data);
+        };
+        fileReader.readAsText($(this).prop('files')[0]);
         });
     </script>
 </body>

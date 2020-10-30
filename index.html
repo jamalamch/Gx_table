@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="src/css/bootstrap.css">
     <link rel="stylesheet" href="src/css/style.css">
     <script src="src/js/jquery.js"></script>
-    <script src="src/js/popper.js"></script>
+    <!-- <script src="src/js/popper.js"></script> -->
     <script src="src/js/bootstrap.js"></script>
 </head>
 
@@ -21,8 +21,7 @@
             </div>
             <div class="col-sm-2 mt-auto">
                 <button id="save" class="btn btn btn-secondary btn-lg px-5" type="button"> SAVE </button>
-                <a href="" id="a">click here to download your file</a>
-               <!-- <button id="download" class="btn btn btn-secondary btn-lg px-5" type="button"> download </button> -->
+                <!-- <a href="" id="a" class="btn btn btn-danger btn-sm mt-2">click here to download your file</a> -->
             </div>
         </div>
 
@@ -34,6 +33,13 @@
         </div>
 
         <ul id="list" class="list-group list-group-flush">
+            <li class="list-group-item">
+                this is the name of temsia
+                <button type="button" class="close">×</button>
+                <div>
+                    <div class="pt-4 float-right">1/12/1544</div>
+                </div>
+            </li>
         </ul>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
@@ -44,51 +50,61 @@
     </div>
 
     <script>
-        function additem(contene) {
-            var item = $("<li>" + contene + "</li>").attr({
+        var fileName = "dataItem.json";
+        var items = [];
+        function additem(item) {
+            var rowItem = $("<li>" + item.contene + "</li>").attr({
                 class: 'list-group-item',
             });
-            var close = $("<button>&times</>").attr({
+            var close = $("<button>&times</button>").attr({
                 type: "button",
                 class: 'close',
             });
-            item.append(close);
-            $("#list").append(item);
+            var date = $("<div><div class='pt-4 float-right'>"+ item.time +"</div></div>");
+            rowItem.append(close);
+            rowItem.append(date);
+            $("#list").append(rowItem);
             close.one('click', function () {
                 close.parent().hide();
             });
         }
         function chargeficher(date) {
-            data = JSON.parse(date);
-            console.debug(data);
-            data.forEach(function(item){
-                additem(item.contene);
+            items = JSON.parse(date);
+            console.debug(items);
+            items.forEach(function(item){
+                additem(item);
             });
         }
-        function download(text, name, type) {
-            var a = $("#a");
+        function download(text, filename, type) {
             var file = new Blob([text], {type: type});
+            var a = document.createElement("a");
             a.href = URL.createObjectURL(file);
-            a.download = name;
+            a.setAttribute("download", filename);     
+            a.click();
         }
 
         $(document).ready(function () {
             $("#addItem").click(function () {
                 var text = $(this).parent().parent().children(".form-control");
-                additem(text.val());
-                text.val("");
+                var item = {
+                    time : new Date().toLocaleDateString(),
+                    contene : text.val()
+                };
+                items.push(item);
+                additem(item);
             });
             $(".close").click(function () {
                 $(this).parent().hide();
             });
             $("#save").click(function(){
-                download('file text', 'myfilename.txt', 'text/plain');
+                download(JSON.stringify(items), fileName, 'text/plain');
+                console.log("clicked");
             })
         });
 
         $(".custom-file-input").on("change", function() {
         var url = $(this).val();
-        var fileName = url.split("\\").pop();
+        fileName = url.split("\\").pop();
          $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
 
         var fileReader = new FileReader();

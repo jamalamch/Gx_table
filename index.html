@@ -10,6 +10,12 @@
     <script src="src/js/jquery.js"></script>
     <!-- <script src="src/js/popper.js"></script> -->
     <script src="src/js/bootstrap.js"></script>
+    <script src="src/js/app.js" defer></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"defer></script>
+    <script src="src/js/init-firebase.js" defer></script>
+
 </head>
 
 <body>
@@ -47,74 +53,8 @@
             </div>
             <input id="item-text" type="text" class="form-control" placeholder="Some text">
         </div>
-    </div>
-
-    <script>
-        var fileName = "dataItem.json";
-        var items = [];
-        function additem(item) {
-            var rowItem = $("<li>" + item.contene + "</li>").attr({
-                class: 'list-group-item',
-            });
-            var close = $("<button>&times</button>").attr({
-                type: "button",
-                class: 'close',
-            });
-            var date = $("<div><div class='pt-4 float-right'>"+ item.time +"</div></div>");
-            rowItem.append(close);
-            rowItem.append(date);
-            $("#list").append(rowItem);
-            close.one('click', function () {
-                close.parent().hide();
-            });
-        }
-        function chargeficher(date) {
-            items = JSON.parse(date);
-            console.debug(items);
-            items.forEach(function(item){
-                additem(item);
-            });
-        }
-        function download(text, filename, type) {
-            var file = new Blob([text], {type: type});
-            var a = document.createElement("a");
-            a.href = URL.createObjectURL(file);
-            a.setAttribute("download", filename);     
-            a.click();
-        }
-
-        $(document).ready(function () {
-            $("#addItem").click(function () {
-                var text = $(this).parent().parent().children(".form-control");
-                var item = {
-                    time : new Date().toLocaleDateString(),
-                    contene : text.val()
-                };
-                items.push(item);
-                additem(item);
-            });
-            $(".close").click(function () {
-                $(this).parent().hide();
-            });
-            $("#save").click(function(){
-                download(JSON.stringify(items), fileName, 'text/plain');
-                console.log("clicked");
-            })
-        });
-
-        $(".custom-file-input").on("change", function() {
-        var url = $(this).val();
-        fileName = url.split("\\").pop();
-         $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-
-        var fileReader = new FileReader();
-        fileReader.onload = function () {
-             var data = fileReader.result;
-             chargeficher(data);
-        };
-        fileReader.readAsText($(this).prop('files')[0]);
-        });
-    </script>
+    </div>>
+<script>
+</script>
 </body>
-
 </html>

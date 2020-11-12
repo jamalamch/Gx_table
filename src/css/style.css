@@ -1,0 +1,37 @@
+.btn-icon{
+    border: none; /* Remove borders */
+    color: rgb(145, 126, 126); /* White text */
+    padding: 0;
+    font-size: 1.5rem; /* Set a font size */
+    cursor: pointer; /* Mouse pointer on hover */
+    margin: 0;
+    line-height: 1;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0);
+  }
+  .btn-icon + .btn-icon{
+    padding-left: 5px;
+  }
+  /* Darker background on mouse-over */
+  .btn-icon:hover {
+    color: rgb(88, 70, 70); /* White text */
+  }
+
+  #table-tr-body td{
+    max-width: 100px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ".."; 
+    transition: all 42s;
+  }
+
+  #table-tr-body td:hover{
+    white-space: normal; 
+    overflow: visible;
+    text-overflow: ".."; 
+    word-wrap: break-word;
+  }
+
+  #myModal textarea{
+    resize:none;
+  }

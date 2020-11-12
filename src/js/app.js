@@ -1,15 +1,117 @@
 var fileName = "dataItem.json";
 var items = [];
 
+var langage = ["english","arabic","frensh","espan","chine"];
+var mot1 = {
+    id : "hello-words-1585",
+    english : "testenglish",
+    frensh: "testfrench",
+    espan: "testespan",
+    chine: "testchine"
+}
+
+var mot2 = {
+    id : "Star-words-11185-456621542vb",
+    english : "starenglish",
+    frensh: "starfrench",
+    espan: "starfespan",
+    chine: "starchine"
+}
+var mot3 = {
+    id : "lang-words-185-4542vb",
+    english : "starenglish dsfdsf fdsfsdf",
+    arabic : " fsdfdsf sdooqop kfd;ap reotijflsd ",
+    frensh: "starfrench asdfsd dsfd sadfds",
+    espan: "starfespan sdfdsf dsfsdf dsfsdf",
+    chine: "starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf"
+}
+
+additem(mot1);
+additem(mot2);
+additem(mot3);
+$(document).ready(() => {
+    $('.delete').bootstrap_confirm_delete({
+        heading: 'My Custom Delete Heading',
+        message: 'Are you sure you want to delete this item?',
+        btn_ok_label: 'Yes',
+        btn_cancel_label: 'Cancel',
+        callback: (event) => {
+          // grab original clicked delete button
+          var button = event.data.originalObject;
+          // execute delete operation
+          button.closest('tr').remove();
+        },
+        delete_callback: () => {
+          console.log('delete button clicked');
+        },
+        cancel_callback: () => {
+          console.log('cancel button clicked');
+        },
+      });
+});
+
 function additem(item) {
-    var rowItem = $("<li class='list-group-item'>" + item.contene + "</li>");
-    var close = $("<button class='close'>&times</button>");
-    var date = $("<div><div class='pt-4 float-right'>" + item.time + "</div></div>");
-    rowItem.append(close);
-    rowItem.append(date);
-    $("#list").append(rowItem);
-    close.one('click', function () {
-        close.parent().hide();
+    var colom = $(`<tr id="${item.id}"></tr>`);
+    var trId = $(`
+        <td>
+            <div style="width: 150px" class="float-left text-truncate">
+                ${item.id}
+            </div>
+        </td>
+    `)   
+     var BcopieId = $(`
+        <button class="btn-icon float-right mdi mdi-content-copy"></button>
+    `);
+    BcopieId.click(function(){
+        copieText(item.id)
+    });
+    trId.append(BcopieId);
+    colom.append(trId);
+    langage.forEach(element=>{
+        var trdWord = $(`
+            <td id="${item.id}-${element}"> ${item[element]}</td>
+        `);
+        colom.append(trdWord);
+    })
+
+    var Bdelete = $(`
+        <button type="button" class="btn-icon deleteWord mdi mdi-delete-forever "></button>
+    `);
+    var Bedite = $(`
+        <button type="button" class="btn-icon  mdi mdi-file-document-edit"></button>
+    `);
+    Bedite.click(function (){
+        openEditor(item);
+    });
+    Bdelete.click(function (){
+        $(this).parent().parent().remove();
+    });
+    var GroupEdit = $(`
+        <td></td>
+    `);
+    GroupEdit.append(Bedite);
+    GroupEdit.append(Bdelete)
+    colom.append(GroupEdit);
+    $("#table-tr-body").append(colom);
+}
+
+function updateItem(item){
+    langage.forEach(element => {
+        $(`#${item.id}-${element}`).text(item[element]);
+    });
+}
+
+function openEditor(item){
+    $('#myModal').modal('show')
+    $('#edit-word-id').text(item.id);
+    langage.forEach(element => {
+        $(`#t-${element}`).val(item[element]);
+    });
+    $('#edit-word-save').click(function(){
+        langage.forEach(element => {
+            item[element] = $(`#t-${element}`).val();
+        });
+        updateItem(item);
     });
 }
 
@@ -43,9 +145,13 @@ $("#addItem").click(function () {
     }
 });
 
-$(".close").click(function () {
-    $(this).parent().remove();
-});
+// $(".deleteAlter").click(function () {
+//     $(this).parent().remove();
+// });
+
+// $(".deleteWord").click(function () {
+//     $(this).parent().parent().remove();
+// });
 
 $("#save").click(function () {
     download(JSON.stringify(items), fileName, 'text/plain');
@@ -65,3 +171,23 @@ $(".custom-file-input").on("change", function () {
     fileReader.readAsText($(this).prop('files')[0]);
 });
 
+function copieText(text){
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+}
+
+$('#myModal textarea').on('input',function (){
+    this.style.height = "1px";
+    this.style.height = (this.scrollHeight+1.1)+"px";
+})
+$('#myModal').on('shown.bs.modal', function (){
+    $('#myModal textarea').each(function (index,element ){
+        element.style.height = "1px";
+        element.style.height = (this.scrollHeight+1.1)+"px";
+        console.log(element.style.height);
+    })
+})

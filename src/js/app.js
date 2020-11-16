@@ -29,26 +29,6 @@ var mot3 = {
 additem(mot1);
 additem(mot2);
 additem(mot3);
-$(document).ready(() => {
-    $('.delete').bootstrap_confirm_delete({
-        heading: 'My Custom Delete Heading',
-        message: 'Are you sure you want to delete this item?',
-        btn_ok_label: 'Yes',
-        btn_cancel_label: 'Cancel',
-        callback: (event) => {
-          // grab original clicked delete button
-          var button = event.data.originalObject;
-          // execute delete operation
-          button.closest('tr').remove();
-        },
-        delete_callback: () => {
-          console.log('delete button clicked');
-        },
-        cancel_callback: () => {
-          console.log('cancel button clicked');
-        },
-      });
-});
 
 function additem(item) {
     var colom = $(`<tr id="${item.id}"></tr>`);
@@ -83,9 +63,20 @@ function additem(item) {
     Bedite.click(function (){
         openEditor(item);
     });
-    Bdelete.click(function (){
-        $(this).parent().parent().remove();
-    });
+    Bdelete.bootstrap_confirm_delete({
+        heading: 'Delete '+item.id,
+        message: 'Are you sure you want to delete this item?',
+        btn_ok_label: 'Yes',
+        btn_cancel_label: 'Cancel',
+        delete_callback: () => {
+            $(`#${item.id}`).remove();
+            delete items[item.id];
+            console.log('delete button clicked');
+        },
+        cancel_callback: () => {
+            console.log('cancel button clicked');
+        },
+    })
     var GroupEdit = $(`
         <td></td>
     `);
@@ -93,6 +84,7 @@ function additem(item) {
     GroupEdit.append(Bdelete)
     colom.append(GroupEdit);
     $("#table-tr-body").append(colom);
+    items[item.id] = item;
 }
 
 function updateItem(item){
@@ -107,7 +99,7 @@ function openEditor(item){
     langage.forEach(element => {
         $(`#t-${element}`).val(item[element]);
     });
-    $('#edit-word-save').click(function(){
+    $('#edit-word-save').off("click").click(function(){
         langage.forEach(element => {
             item[element] = $(`#t-${element}`).val();
         });
@@ -144,14 +136,6 @@ $("#addItem").click(function () {
         additem(item);
     }
 });
-
-// $(".deleteAlter").click(function () {
-//     $(this).parent().remove();
-// });
-
-// $(".deleteWord").click(function () {
-//     $(this).parent().parent().remove();
-// });
 
 $("#save").click(function () {
     download(JSON.stringify(items), fileName, 'text/plain');

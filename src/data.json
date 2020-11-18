@@ -1,10 +1,21 @@
-[
-    {
-        "time": "12/05/2020",
-        "contene": "this is the name of temsia"
+{
+    "hello-words-1585": {
+        "english" : "Hello",
+        "frensh": "Bonjour",
+        "espan": "spspp",
+        "chine": "dfsadf"
+    },
+    "Star-words-11185-456621542vb": {
+        "english" : "Star",
+        "frensh": "Demare",
+        "espan": "fgkgk",
+        "chine": "dfggfdgdf"
     } ,
-    {
-        "time": "25/05/2019",
-        "contene": "this is the name of agadir"
+    "lang-words-185-4542vb": {
+        "english": "starenglish dsfdsf fdsfsdf",
+        "arabic": "starenglish dsfdsf fdsfsdf",
+        "frensh": " fsdfdsf sdooqop kfd;ap reotijflsd ",
+        "espan": "starfespan sdfdsf dsfsdf dsfsdf",
+        "chine": "starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf"
     } 
-]
+}

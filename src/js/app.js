@@ -1,7 +1,7 @@
 var fileName = "dataItem.json";
 var items = [];
 
-var langage = ["english","arabic","frensh","espan","chine"];
+var languages = ["english","arabic","frensh","espan","chine"];
 var mot1 = {
     id : "hello-words-1585",
     english : "testenglish",
@@ -26,6 +26,29 @@ var mot3 = {
     chine: "starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf"
 }
 
+var tableTrRoot = $('#table-tr-root')
+var tableTrHead = $('#table-tr-thead');
+var tableTrBody = $('#table-tr-body');
+
+function addLangugeToTableTr(){
+    var colom = $(`<tr></tr>`);
+    colom.append($('<th>ID</th>'));
+    languages.forEach(element=>{
+        var trdWord = $(`
+            <th> ${element}</th>
+        `);
+        colom.append(trdWord);
+    })
+    var bAddlangauge = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
+    bAddlangauge.click(function (){
+        openEditLanguage();
+    });
+    colom.append($('<th></th>').append(bAddlangauge));
+    tableTrHead.append(colom);
+}
+
+addLangugeToTableTr();
+
 additem(mot1);
 additem(mot2);
 additem(mot3);
@@ -34,7 +57,7 @@ function additem(item) {
     var colom = $(`<tr id="${item.id}"></tr>`);
     var trId = $(`
         <td>
-            <div style="width: 150px" class="float-left text-truncate">
+            <div class="float-left text-truncate">
                 ${item.id}
             </div>
         </td>
@@ -47,7 +70,7 @@ function additem(item) {
     });
     trId.append(BcopieId);
     colom.append(trId);
-    langage.forEach(element=>{
+    languages.forEach(element=>{
         var trdWord = $(`
             <td id="${item.id}-${element}"> ${item[element]}</td>
         `);
@@ -61,7 +84,7 @@ function additem(item) {
         <button type="button" class="btn-icon  mdi mdi-file-document-edit"></button>
     `);
     Bedite.click(function (){
-        openEditor(item);
+        openEditorWord(item);
     });
     Bdelete.bootstrap_confirm_delete({
         heading: 'Delete '+item.id,
@@ -83,77 +106,65 @@ function additem(item) {
     GroupEdit.append(Bedite);
     GroupEdit.append(Bdelete)
     colom.append(GroupEdit);
-    $("#table-tr-body").append(colom);
+    tableTrBody.append(colom);
     items[item.id] = item;
 }
 
 function updateItem(item){
-    langage.forEach(element => {
+    languages.forEach(element => {
         $(`#${item.id}-${element}`).text(item[element]);
     });
 }
 
-function openEditor(item){
-    $('#myModal').modal('show')
-    $('#edit-word-id').text(item.id);
-    langage.forEach(element => {
+var modalEditWord = $('#model-edit-word');
+var LabelWordEditId = $('#edit-word-id');
+var ButtonSaveEditWord = $('#edit-word-save');
+
+function openEditorWord(item){
+    modalEditWord.modal('show');
+    LabelWordEditId.text(item.id);
+    languages.forEach(element => {
         $(`#t-${element}`).val(item[element]);
     });
-    $('#edit-word-save').off("click").click(function(){
-        langage.forEach(element => {
+    ButtonSaveEditWord.off("click").click(function(){
+        languages.forEach(element => {
             item[element] = $(`#t-${element}`).val();
         });
         updateItem(item);
     });
 }
 
-function chargeficher(data) {
-    items = JSON.parse(data);
-    console.debug(items);
-    $("#list").empty();
-    items.forEach(function (item) {
-        additem(item);
-    });
+var modelAddlanguage = $('#modal-add-language');
+var languageName = $('#add-language-name');
+var bodyModalAddlangauge = $('#add-language-body');
+var buttonSaveAddlanguage = $('#add-language-save');
+
+function openEditLanguage(){
+    modelAddlanguage.modal('show');
+    languageName.val('');
+
+    buttonSaveAddlanguage.off('click').click(function (){
+        var lang = languageName.val().toLowerCase().replace(' ','_');
+        languages.push(lang);
+        addColumnToTableJS(tableTrRoot[0],null,lang);
+    })
 }
 
-function download(text, filename, type) {
-    var file = new Blob([text], { type: type });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(file);
-    a.setAttribute("download", filename);
-    a.click();
-}
-
-$("#addItem").click(function () {
-    var text = $(this).parent().parent().children(".form-control");
-    if(text.val()){
-        var item = {
-            time: new Date().toLocaleDateString(),
-            contene: text.val()
-        };
-        text.val("");
-        items.push(item);
-        additem(item);
+function addColumnToTableJS(table, pos, content){
+    
+    var columns = table.rows[0].getElementsByTagName('th').length;
+    if (!pos && pos !== 0){
+      pos = columns - 1;
     }
-});
+    var cell = table.rows[0].insertCell(pos);
+    cell.outerHTML = `<th>${content}</th>`;
 
-$("#save").click(function () {
-    download(JSON.stringify(items), fileName, 'text/plain');
-    console.log("clicked");
-});
-
-$(".custom-file-input").on("change", function () {
-    var url = $(this).val();
-    fileName = url.split("\\").pop();
-    $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-
-    var fileReader = new FileReader();
-    fileReader.onload = function () {
-        var data = fileReader.result;
-        chargeficher(data);
-    };
-    fileReader.readAsText($(this).prop('files')[0]);
-});
+    for (var r=1; r<table.rows.length; r++){
+      var cell = table.rows[r].insertCell(pos);
+      var itemId = table.rows[r].id;
+      cell.id = itemId+'-'+content;
+    }
+  }  
 
 function copieText(text){
     const el = document.createElement('textarea');
@@ -164,14 +175,23 @@ function copieText(text){
     document.body.removeChild(el);
 }
 
-$('#myModal textarea').on('input',function (){
+$('.textar-input').on('input',function (){
     this.style.height = "1px";
     this.style.height = (this.scrollHeight+1.1)+"px";
 })
-$('#myModal').on('shown.bs.modal', function (){
-    $('#myModal textarea').each(function (index,element ){
+$('.modal').on('shown.bs.modal', function (){
+    $(this).find('.textar-input').each(function (index,element ){
         element.style.height = "1px";
         element.style.height = (this.scrollHeight+1.1)+"px";
         console.log(element.style.height);
     })
 })
+
+function chargeficher(data) {
+    items = JSON.parse(data);
+    console.debug(items);
+    $("#list").empty();
+    items.forEach(function (item) {
+        additem(item);
+    });
+}

@@ -36,24 +36,24 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-bordered table-hover table-sm table-striped">
-                <thead>
-                    <tr>
-                        <th style="width: 190px">ID</th>
-                        <th>English</th>
-                        <th>Arabic</th>
-                        <th>Frensh</th>
-                        <th>Espan</th>
-                        <th>Chine</th>
-                        <th class="border-0 " style="width: 75px">
+            <table id="table-tr-root" class="table table-bordered table-hover table-sm table-striped">
+                <thead id="table-tr-thead">
+                    <!-- <tr>
+                        <th>ID</th>
+                        <th>english</th>
+                        <th>arabic</th>
+                        <th>frensh</th>
+                        <th>espan</th>
+                        <th>chine</th>
+                        <th">
                             <button id="add-langage" class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>
                         </th>
-                    </tr>
+                    </tr> -->
                 </thead>
                 <tbody id="table-tr-body">
                     <!-- <tr id="hello-words-145">
                         <td>
-                            <div style="width: 150px" class="float-left text-truncate">
+                            <div class="float-left text-truncate">
                                 hello-words-205   fhfghfg fghjfghj
                             </div>
                             <button class="btn-icon float-right mdi mdi-content-copy"></button>
@@ -73,12 +73,8 @@
         </div>
     </div>
 
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-        Open modal
-    </button>
-
     <!-- The Modal -->
-    <div class="modal" id="myModal">
+    <div class="modal" id="model-edit-word">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
 
@@ -93,23 +89,23 @@
 
                     <div class="form-group row">
                         <label class="col-sm-2 form-control-sm" for="t-english">English:</label>
-                        <textarea class="form-control form-control-sm col-sm-9 rows="1" id="t-english"></textarea>
+                        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-english"></textarea>
                     </div>
                     <div class="form-group row ">
                         <label class="col-sm-2 form-control-sm" for="t-arabic">Arabic:</label>
-                        <textarea class="form-control form-control-sm col-sm-9 rows="1" id="t-arabic"></textarea>
+                        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-arabic"></textarea>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 form-control-sm" for="t-frensh">Frensh:</label>
-                        <textarea class="form-control form-control-sm col-sm-9 rows="1" id="t-frensh"></textarea>
+                        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-frensh"></textarea>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 form-control-sm" for="t-espan">Espan:</label>
-                        <textarea class="form-control form-control-sm col-sm-9 rows="1" id="t-espan"></textarea>
+                        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-espan"></textarea>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-2 form-control-sm" for="t-chine">Chine:</label>
-                        <textarea class="form-control form-control-sm col-sm-9 rows="1" id="t-chine"></textarea>
+                        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-chine"></textarea>
                     </div>
                 </div>
 
@@ -122,6 +118,32 @@
         </div>
     </div>
 
+    <div class="modal" id="modal-add-language">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Add a new langage</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body "id="add-language-body">
+                    <div class="form-group row">
+                        <label class="col-sm-4 " for="add-language-name"> language Name :</label>
+                        <input type="text" class="form-control col-sm-7" id="add-language-name"></textarea>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button id="add-language-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
     
     <div id="bootstrap-confirm-delete-container">
         <div id="bootstrap-confirm-dialog" class="modal fade">

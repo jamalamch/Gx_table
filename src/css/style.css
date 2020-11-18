@@ -17,12 +17,28 @@
     color: rgb(88, 70, 70); /* White text */
   }
 
+  #table-tr-thead th{
+    text-transform: capitalize;
+  }
+
+  #table-tr-thead th:first-child{
+    width: 190px;
+  }
+  #table-tr-thead th:last-child{
+    width: 75px;
+    border: 0;
+  }
+
   #table-tr-body td{
     max-width: 100px;
     white-space: nowrap; 
     overflow: hidden;
     text-overflow: ".."; 
     transition: all 42s;
+  }
+
+  #table-tr-body td:first-child div{
+    width: 150px;
   }
 
   #table-tr-body td:hover{
@@ -32,6 +48,6 @@
     word-wrap: break-word;
   }
 
-  #myModal textarea{
+  .textar-input{
     resize:none;
   }

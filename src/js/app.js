@@ -1,5 +1,5 @@
 var fileName = "dataItem.json";
-var items = [];
+var items = new Map();
 
 var languages = ["english","arabic","frensh","espan","chine"];
 var mot1 = {
@@ -30,24 +30,45 @@ var tableTrRoot = $('#table-tr-root')
 var tableTrHead = $('#table-tr-thead');
 var tableTrBody = $('#table-tr-body');
 
-function addLangugeToTableTr(){
-    var colom = $(`<tr></tr>`);
-    colom.append($('<th>ID</th>'));
+function initTableTr(){
+    var colomLangHead = $(`<tr></tr>`);
+    colomLangHead.append($('<th>ID</th>'));
+    tableTrHead.append(colomLangHead);
+
     languages.forEach(element=>{
-        var trdWord = $(`
+        var thLanguage = $(`
             <th> ${element}</th>
         `);
-        colom.append(trdWord);
+        colomLangHead.append(thLanguage);
     })
+
     var bAddlangauge = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
     bAddlangauge.click(function (){
         openEditLanguage();
     });
-    colom.append($('<th></th>').append(bAddlangauge));
-    tableTrHead.append(colom);
+    colomLangHead.append($('<th></th>').append(bAddlangauge));
 }
 
-addLangugeToTableTr();
+var editWordBody =$('#model-edit-word-body');
+
+function initModelEditor(){
+    languages.forEach(language=>{
+        addLangugeToModelEditor(language);
+    })
+}
+
+function addLangugeToModelEditor(language){
+    var editAreWord = $(`
+    <div class="form-group row">
+        <label class="text-capitalize col-sm-2 form-control-sm" for="t-${language}">${language}:</label>
+        <textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-${language}"></textarea>
+    </div>
+    `);
+    editWordBody.append(editAreWord);
+}
+
+initTableTr();
+initModelEditor();
 
 additem(mot1);
 additem(mot2);
@@ -93,7 +114,7 @@ function additem(item) {
         btn_cancel_label: 'Cancel',
         delete_callback: () => {
             $(`#${item.id}`).remove();
-            delete items[item.id];
+            items.delete(item.id);
             console.log('delete button clicked');
         },
         cancel_callback: () => {
@@ -107,7 +128,7 @@ function additem(item) {
     GroupEdit.append(Bdelete)
     colom.append(GroupEdit);
     tableTrBody.append(colom);
-    items[item.id] = item;
+    items.set(item.id, item);
 }
 
 function updateItem(item){
@@ -145,8 +166,11 @@ function openEditLanguage(){
 
     buttonSaveAddlanguage.off('click').click(function (){
         var lang = languageName.val().toLowerCase().replace(' ','_');
-        languages.push(lang);
-        addColumnToTableJS(tableTrRoot[0],null,lang);
+        if(lang.length > 0 && !languages.includes(lang)){
+            languages.push(lang);
+            addColumnToTableJS(tableTrRoot[0],null,lang);
+            addLangugeToModelEditor(lang);
+        }
     })
 }
 

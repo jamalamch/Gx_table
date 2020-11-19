@@ -31,22 +31,16 @@
 
   #table-tr-body td{
     max-width: 100px;
-    white-space: nowrap; 
     overflow: hidden;
+    word-wrap: break-word;
     text-overflow: ".."; 
-    transition: all 42s;
+    white-space: nowrap; 
   }
-
   #table-tr-body td:first-child div{
     width: 150px;
   }
 
-  #table-tr-body td:hover{
-    white-space: normal; 
-    overflow: visible;
-    text-overflow: ".."; 
-    word-wrap: break-word;
-  }
+ 
 
   .textar-input{
     resize:none;

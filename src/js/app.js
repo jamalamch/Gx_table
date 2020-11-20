@@ -22,4 +22,5 @@ var mot3 = {
     chine: "starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf starchine sdafsd dfsdf sfdsdfdsf dsfsdf"
 }
 var tabletr = new gxTraducter();
-tabletr.buildTranslationTable(["english","arabic","frensh","espan","chine"],[mot1,mot2])
+tabletr.buildTranslationTable("testTaraducter",["english","arabic","frensh","espan","chine"],[mot1,mot2,mot3]);
+$('.container').append(tabletr);

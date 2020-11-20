@@ -17,30 +17,28 @@
     color: rgb(88, 70, 70); /* White text */
   }
 
-  #table-tr-thead th{
+  #table-gx-thead th{
     text-transform: capitalize;
   }
 
-  #table-tr-thead th:first-child{
+  #table-gx-thead th:first-child{
     width: 190px;
   }
-  #table-tr-thead th:last-child{
+  #table-gx-thead th:last-child{
     width: 75px;
     border: 0;
   }
 
-  #table-tr-body td{
+  #table-gx-body td{
     max-width: 100px;
     overflow: hidden;
     word-wrap: break-word;
     text-overflow: ".."; 
     white-space: nowrap; 
   }
-  #table-tr-body td:first-child div{
+  #table-gx-body td:first-child div{
     width: 150px;
   }
-
- 
 
   .textar-input{
     resize:none;

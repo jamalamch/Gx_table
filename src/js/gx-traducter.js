@@ -1,94 +1,122 @@
 
 
-function gxTraducter() {
-    this.traducterName ;
-    this.translaItems = new Map();
-    this.translationLanguages = [];
+function gxTable(element, options) {
+    this.element = $(element);
+    this.settings = $.extend(
+        {
+            // heading: 'Delete',
+            // message: 'Are you sure you want to delete this item?',
+            // btn_ok_label: 'Yes',
+            // btn_cancel_label: 'Cancel',
+            // callback: null,
+            // delete_callback: null,
+            // cancel_callback: null
+        }, options || {}
+    );
+
+    this.tableName ;
+    this.tableItems = new Map();
+    this.columnsHead = [];
 
     this.tableTraducter;
 
-    this.tableTrRoot;
-    this.tableTrHead;
-    this.tableTrBody;
+    this.tableGxRoot;
+    this.tableGxHead;
+    this.tableGxBody;
 
-    this.modalEditWord;
-    this.modalEditWordBody;
-    this.modalWordEditLabelId;
-    this.modalButtonSaveEditWord;
+    this.modalEditRow;
+    this.modalEditRowBody;
+    this.modalRowEditLabelId;
+    this.modalButtonSaveEditRow;
 
-    this.modelAddlanguage ;
-    this.modelLanguageLabelName ;
-    this.modelBodyAddlangauge ;
-    this.modelButtonSaveAddlanguage ;
+    this.modelAddColumn ;
+    this.modelColumnLabelName ;
+    this.modelBodyAddColumn ;
+    this.modelButtonSaveAddColumn ;
 }
 
-gxTraducter.prototype.buildTranslationTable = function (traducterName, languages, trsItems) {
-    this.traducterName = traducterName;
-    this.translationLanguages = languages;
-    this.initTableTr();
+gxTable.prototype.build = function (tableName, columnsHead, items) {
+    this.tableName = tableName;
+    this.columnsHead = columnsHead;
+    this.initTable();
     this.initModelEditor();
-    this.initmodalAddLanguage();
-    if (trsItems) {
-        trsItems.forEach(trItem => {
-            this.addTranslation(trItem);
+    this.initmodalAddColumn();
+    if (items) {
+        items.forEach(trItem => {
+            this.addRow(trItem);
         });
     }
 }
 
-gxTraducter.prototype.initTableTr = function () {
+gxTable.prototype.initTable = function () {
     this[0] = $(`
         <div class="table-responsive">
-            <table id="table-tr-root" class="table table-bordered table-hover table-sm table-striped">
-                <thead id="table-tr-thead">
-                    <tr id="colom-tr-head">
+            <table id="table-gx-root" class="table table-bordered table-hover table-sm table-striped">
+                <thead id="table-gx-thead">
+                    <tr id="colom-gx-head">
                         <th>ID</th>
 
                     </tr>
                 </thead>
-                <tbody id="table-tr-body">
+                <tbody id="table-gx-body">
                 </tbody>
             </table>
         </div>
     `)[0];
     this.length = 1;
-    $('body').append(this[0]);
-
-    this.tableTrRoot = $('#table-tr-root');
-    this.tableTrHead = $('#table-tr-thead');
-    this.tableTrColomHead = $('#colom-tr-head');
-    this.tableTrBody = $('#table-tr-body');
-
-    this.translationLanguages.forEach(element => {
-        var thLanguage = $(`
-            <th> ${element}</th>
-        `);
-        this.tableTrColomHead.append(thLanguage);
-    })
-    var bAddlangauge = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
+    this.element.append(this[0]);
     var gxtable = this;
-    bAddlangauge.click(function () {
-        gxtable.openEditLanguage();
+    this.tableGxRoot = $('#table-gx-root');
+    this.tableGxHead = $('#table-gx-thead');
+    this.tableTrColomHead = $('#colom-gx-head');
+    this.tableGxBody = $('#table-gx-body');
+    this.columnsHead.forEach(column => {
+        var thColumn = $(`
+            <th> 
+                ${column}
+            </th>
+        `);
+        bRemoveColumn = $('<button class="float-right btn-icon  ml-1 mdi mdi-close"> </button>');
+        bRemoveColumn.bootstrap_confirm_delete({
+            heading: 'Delete ' + column,
+            message: 'Are you sure you want to delete this column?',
+            btn_ok_label: 'Yes',
+            btn_cancel_label: 'Cancel',
+            delete_callback: () => {
+                console.log(column+' was Deleted');
+                gxtable.removeColumnName(column);
+            },
+            cancel_callback: () => {
+                console.log('cancel Delete Languages');
+            },
+        });
+        thColumn.append(bRemoveColumn);
+        this.tableTrColomHead.append(thColumn);
+    })
+    var bAddColumn = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
+    bAddColumn.click(function () {
+        gxtable.openEditColumn();
     });
-    this.tableTrColomHead.append($('<th></th>').append(bAddlangauge));
+    this.tableTrColomHead.append($('<th></th>').append(bAddColumn));
 }
 
-gxTraducter.prototype.initModelEditor = function () {
-    if (null === document.getElementById('model-edit-word')) {
+gxTable.prototype.initModelEditor = function () {
+    if (null === document.getElementById('model-edit-row')) {
         $('body').append(`
-            <div class="modal" id="model-edit-word">
+            <div class="modal" id="model-edit-row">
                 <div class="modal-dialog modal-dialog-scrollable">
                     <div class="modal-content">
                         <!-- Modal Header -->
                         <div class="modal-header">
-                            <h4 id="edit-word-id" class="modal-title"></h4>
+                            <h4 id="edit-row-id" class="modal-title"></h4>
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
                         <!-- Modal body -->
-                        <div id="model-edit-word-body" class="modal-body" >
+                        <div id="model-edit-row-body" class="modal-body" >
                         </div>
                         <!-- Modal footer -->
                         <div class="modal-footer">
-                            <button id="edit-word-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
+                            <button id="edit-row-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
                         </div>
 
                     </div>
@@ -96,15 +124,15 @@ gxTraducter.prototype.initModelEditor = function () {
             </div>
         `);
 
-        this.modalEditWord = $('#model-edit-word');
-        this.modalWordEditLabelId = $('#edit-word-id')
-        this.modalEditWordBody = $('#model-edit-word-body');
-        this.modalButtonSaveEditWord = $('#edit-word-save');
+        this.modalEditRow = $('#model-edit-row');
+        this.modalRowEditLabelId = $('#edit-row-id')
+        this.modalEditRowBody = $('#model-edit-row-body');
+        this.modalButtonSaveEditRow = $('#edit-row-save');
     }
-    this.translationLanguages.forEach(language => {
-        this.addLangugeToModelEditor(language);
+    this.columnsHead.forEach(colum => {
+        this.addColumnToModelEditor(colum);
     })
-    this.modalEditWord.on('shown.bs.modal', function () {
+    this.modalEditRow.on('shown.bs.modal', function () {
         $(this).find('.textar-input').each(function (index, element) {
             element.style.height = "1px";
             element.style.height = (this.scrollHeight + 1.1) + "px";
@@ -112,30 +140,30 @@ gxTraducter.prototype.initModelEditor = function () {
     })
 }
 
-gxTraducter.prototype.initmodalAddLanguage = function () {
-    if (null === document.getElementById('modal-add-language')) {
+gxTable.prototype.initmodalAddColumn = function () {
+    if (null === document.getElementById('modal-add-column')) {
         $('body').append(`
-            <div class="modal" id="modal-add-language">
+            <div class="modal" id="modal-add-column">
                 <div class="modal-dialog modal-dialog-scrollable">
                     <div class="modal-content">
 
                         <!-- Modal Header -->
                         <div class="modal-header">
-                            <h4 class="modal-title">Add a new langage</h4>
+                            <h4 class="modal-title">Add a newcolumn</h4>
                             <button type="button" class="close" data-dismiss="modal">&times;</button>
                         </div>
 
                         <!-- Modal body -->
-                        <div class="modal-body "id="add-language-body">
+                        <div class="modal-body "id="add-column-body">
                             <div class="form-group row">
-                                <label class="col-sm-4 " for="add-language-name"> language Name :</label>
-                                <input type="text" class="form-control col-sm-7" id="add-language-name"></textarea>
+                                <label class="col-sm-4 " for="add-column-name"> column Name :</label>
+                                <input type="text" class="form-control col-sm-7" id="add-column-name"></textarea>
                             </div>
                         </div>
 
                         <!-- Modal footer -->
                         <div class="modal-footer">
-                            <button id="add-language-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
+                            <button id="add-column-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
                         </div>
 
                     </div>
@@ -143,60 +171,60 @@ gxTraducter.prototype.initmodalAddLanguage = function () {
             </div>
         `);
         
-        this.modelAddlanguage = $('#modal-add-language');
-        this.modelBodyAddlangauge = $('dd-language-body');
-        this.modelLanguageLabelName = $('#add-language-name');
-        this.modelButtonSaveAddlanguage = $('#add-language-save');
+        this.modelAddColumn = $('#modal-add-column');
+        this.modelBodyAddColumn = $('dd-column-body');
+        this.modelColumnLabelName = $('#add-column-name');
+        this.modelButtonSaveAddColumn = $('#add-column-save');
     }
 }
 
-gxTraducter.prototype.addLangugeToModelEditor = function (language) {
+gxTable.prototype.addColumnToModelEditor = function (column) {
     var editAreWord = $(`
         <div class="form-group row">
-            <label class="text-capitalize col-sm-2 form-control-sm" for="t-${language}">${language}:</label>
+            <label class="text-capitalize col-sm-2 form-control-sm" for="t-${column}">${column}:</label>
         </div>
     `);
-    var textarInput = $(`<textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-${language}"></textarea>`);
+    var textarInput = $(`<textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="t-${column}"></textarea>`);
     textarInput.on('input', function () {
         this.style.height = "1px";
         this.style.height = (this.scrollHeight + 1.1) + "px";
     });
-    this.modalEditWordBody.append(editAreWord.append(textarInput));
+    this.modalEditRowBody.append(editAreWord.append(textarInput));
 }
 
-gxTraducter.prototype.addTranslation = function (item) {
-    var colom = $(`<tr id="${item.id}"></tr>`);
-    var trId = $(`
+gxTable.prototype.addRow = function (item) {
+    var trRow = $(`<tr id="${item.id}"></tr>`);
+    var rowHead = $(`
         <td>
             <div class="float-left text-truncate">
                 ${item.id}
             </div>
         </td>
     `)
-    var BcopieId = $(`
+    var bCopieHead = $(`
         <button class="btn-icon float-right mdi mdi-content-copy"></button>
     `);
-    BcopieId.click(function () {
+    bCopieHead.click(function () {
         copieText(item.id)
     });
-    trId.append(BcopieId);
-    colom.append(trId);
-    this.translationLanguages.forEach(element => {
+    rowHead.append(bCopieHead);
+    trRow.append(rowHead);
+    this.columnsHead.forEach(column => {
         var trdWord = $(`
-            <td id="${item.id}-${element}"> ${item[element]}</td>
+            <td id="${item.id}-${column}"> ${item[column]}</td>
         `);
-        colom.append(trdWord);
+        trRow.append(trdWord);
     })
 
     var Bdelete = $(`
-        <button type="button" class="btn-icon deleteWord mdi mdi-delete-forever "></button>
+        <button type="button" class="btn-icon  mdi mdi-delete-forever "></button>
     `);
     var Bedite = $(`
         <button type="button" class="btn-icon  mdi mdi-file-document-edit"></button>
     `);
     var gxtable = this;
     Bedite.click(function () {
-        gxtable.openEditorWord(item);
+        gxtable.openEditorRow(item);
     });
     Bdelete.bootstrap_confirm_delete({
         heading: 'Delete ' + item.id,
@@ -205,7 +233,7 @@ gxTraducter.prototype.addTranslation = function (item) {
         btn_cancel_label: 'Cancel',
         delete_callback: () => {
             $(`#${item.id}`).remove();
-            gxtable.translaItems.delete(item.id);
+            gxtable.tableItems.delete(item.id);
             console.log('delete button clicked');
         },
         cancel_callback: () => {
@@ -217,53 +245,67 @@ gxTraducter.prototype.addTranslation = function (item) {
     `);
     GroupEdit.append(Bedite);
     GroupEdit.append(Bdelete)
-    colom.append(GroupEdit);
-    colom.hover(function () {
+    trRow.append(GroupEdit);
+    trRow.hover(function () {
         $(this).find('td').css("white-space", "normal");
     }, function () {
         $(this).find('td').css("white-space", "nowrap");
     });
-    this.tableTrBody.append(colom);
-    this.translaItems.set(item.id, item);
+    this.tableGxBody.append(trRow);
+    this.tableItems.set(item.id, item);
 }
 
-gxTraducter.prototype.updateTranslation = function (item) {
-    this.translationLanguages.forEach(element => {
+gxTable.prototype.updateRow = function (item) {
+    this.columnsHead.forEach(element => {
         $(`#${item.id}-${element}`).text(item[element]);
     });
 }
 
-gxTraducter.prototype.openEditorWord = function (item) {
-    this.modalEditWord.modal('show');
-    this.modalWordEditLabelId.text(item.id);
-    this.translationLanguages.forEach(element => {
+gxTable.prototype.openEditorRow = function (item) {
+    this.modalEditRow.modal('show');
+    this.modalRowEditLabelId.text(item.id);
+    this.columnsHead.forEach(element => {
         $(`#t-${element}`).val(item[element]);
     });
     var gxtable = this;
-    this.modalButtonSaveEditWord.off("click").click(function () {
-        gxtable.translationLanguages.forEach(element => {
-            item[element] = $(`#t-${element}`).val();
+    this.modalButtonSaveEditRow.off("click").click(function () {
+        gxtable.columnsHead.forEach(column => {
+            item[column] = $(`#t-${column}`).val();
         });
-        gxtable.updateTranslation(item);
+        gxtable.updateRow(item);
     });
 }
 
-gxTraducter.prototype.openEditLanguage = function () {
-    this.modelAddlanguage.modal('show');
-    this.modelLanguageLabelName.val('');
+gxTable.prototype.openEditColumn = function () {
+    this.modelAddColumn.modal('show');
+    this.modelColumnLabelName.val('');
     var gxtable = this;
-    this.modelButtonSaveAddlanguage.off('click').click(function () {
-        var lang = gxtable.modelLanguageLabelName.val().toLowerCase().replace(' ', '_');
-        if (lang.length > 0 && !gxtable.translationLanguages.includes(lang)) {
-            gxtable.translationLanguages.push(lang);
-            gxtable.addColumnToTableJS(null, lang);
-            gxtable.addLangugeToModelEditor(lang);
-        }
+    this.modelButtonSaveAddColumn.off('click').click(function () {
+        gxtable.addColumn(gxtable.modelColumnLabelName.val());
     })
 }
 
-gxTraducter.prototype.addColumnToTableJS = function (pos, content) {
-    table = this.tableTrRoot[0];
+gxTable.prototype.addColumn = function (column) {
+    column = column.toLowerCase().replace(' ', '_');
+    if (column.length > 0 && !this.columnsHead.includes(column)) {
+        this.columnsHead.push(column);
+        this.addColumnToTableJS(null, column);
+        this.addColumnToModelEditor(column);
+    }
+}
+
+gxTable.prototype.removeColumnName = function (column) {
+    if(this.columnsHead.includes(column)){
+        var index = this.columnsHead.indexOf(column);
+        if (index > -1) {
+            this.columnsHead.splice(index, 1);
+            this.removeColumInTableJs(index + 1);
+        }
+    }
+}
+
+gxTable.prototype.addColumnToTableJS = function (pos, content) {
+    table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
     if (!pos && pos !== 0) {
         pos = columns - 1;
@@ -278,19 +320,18 @@ gxTraducter.prototype.addColumnToTableJS = function (pos, content) {
     }
 }
 
-gxTraducter.prototype.removeColumInTableJs = function(pos) {
-    table = this.tableTrRoot[0];
+gxTable.prototype.removeColumInTableJs = function(pos) {
+    table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
-    if (!pos && pos !== 0) {
-        pos = columns - 1;
-    }
-    for (var r = 0; r < table.rows.length; r++) {
-        table.rows[r].deleteCell(pos);
+    if(pos > 0 && pos < columns){
+        for (var r = 0; r < table.rows.length; r++) {
+            table.rows[r].deleteCell(pos);
+        }
     }
 }
 
-gxTraducter.prototype.savaTableTrAsJson = function() {
-    download(JSON.stringify(this.translaItems), this.traducterName+".json", 'text/plain');
+gxTable.prototype.savaTableTrAsJson = function() {
+    download(JSON.stringify(this.tableItems), this.tableName+".json", 'text/plain');
     console.log("dowload table As Json");
 }
 
@@ -309,4 +350,17 @@ function download(text, filename, type) {
     a.href = URL.createObjectURL(file);
     a.setAttribute("download", filename);
     a.click();
+}
+
+$.fn.gxTable = function (options) {
+    var element = $(this);
+
+    if (element.data('gx-traducter')) {
+        return element.data('gx-traducter');
+    }
+
+    var plugin = new gxTable(this, options);
+
+    element.data('gx-traducter', plugin);
+    return plugin;
 }

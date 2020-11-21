@@ -4,21 +4,17 @@ function gxTable(element, options) {
     this.element = $(element);
     this.settings = $.extend(
         {
-            // heading: 'Delete',
-            // message: 'Are you sure you want to delete this item?',
-            // btn_ok_label: 'Yes',
-            // btn_cancel_label: 'Cancel',
-            // callback: null,
-            // delete_callback: null,
-            // cancel_callback: null
+            name: 'table Gx',
+            columnID: 'ID',
+            columns: [],
+            data: {},
+            url : null,
+            editRow : false,
+            editColumn : false,
         }, options || {}
     );
-
-    this.tableName ;
-    this.tableItems = new Map();
-    this.columnsHead = [];
-
-    this.tableTraducter;
+    this.tableItems = options.data;
+    this.columnsHead = options.columns;
 
     this.tableGxRoot;
     this.tableGxHead;
@@ -33,38 +29,34 @@ function gxTable(element, options) {
     this.modelColumnLabelName ;
     this.modelBodyAddColumn ;
     this.modelButtonSaveAddColumn ;
+    this.build();
 }
 
-gxTable.prototype.build = function (tableName, columnsHead, items) {
-    this.tableName = tableName;
-    this.columnsHead = columnsHead;
+gxTable.prototype.build = function () {
     this.initTable();
     this.initModelEditor();
     this.initmodalAddColumn();
-    if (items) {
-        items.forEach(trItem => {
-            this.addRow(trItem);
-        });
+    if (this.tableItems) {
+        for(var itemId in this.tableItems){
+            this.addRow(itemId);
+        };
     }
 }
 
 gxTable.prototype.initTable = function () {
-    this[0] = $(`
+    this.element.append(`
         <div class="table-responsive">
             <table id="table-gx-root" class="table table-bordered table-hover table-sm table-striped">
                 <thead id="table-gx-thead">
                     <tr id="colom-gx-head">
                         <th>ID</th>
-
                     </tr>
                 </thead>
                 <tbody id="table-gx-body">
                 </tbody>
             </table>
         </div>
-    `)[0];
-    this.length = 1;
-    this.element.append(this[0]);
+    `);
     var gxtable = this;
     this.tableGxRoot = $('#table-gx-root');
     this.tableGxHead = $('#table-gx-thead');
@@ -192,12 +184,13 @@ gxTable.prototype.addColumnToModelEditor = function (column) {
     this.modalEditRowBody.append(editAreWord.append(textarInput));
 }
 
-gxTable.prototype.addRow = function (item) {
-    var trRow = $(`<tr id="${item.id}"></tr>`);
+gxTable.prototype.addRow = function (idItem) {
+    var dataItem = this.tableItems[idItem];
+    var trRow = $(`<tr id="${idItem}"></tr>`);
     var rowHead = $(`
         <td>
             <div class="float-left text-truncate">
-                ${item.id}
+                ${idItem}
             </div>
         </td>
     `)
@@ -205,13 +198,13 @@ gxTable.prototype.addRow = function (item) {
         <button class="btn-icon float-right mdi mdi-content-copy"></button>
     `);
     bCopieHead.click(function () {
-        copieText(item.id)
+        copieText(idItem)
     });
     rowHead.append(bCopieHead);
     trRow.append(rowHead);
     this.columnsHead.forEach(column => {
         var trdWord = $(`
-            <td id="${item.id}-${column}"> ${item[column]}</td>
+            <td id="${idItem}-${column}"> ${dataItem[column]}</td>
         `);
         trRow.append(trdWord);
     })
@@ -224,16 +217,16 @@ gxTable.prototype.addRow = function (item) {
     `);
     var gxtable = this;
     Bedite.click(function () {
-        gxtable.openEditorRow(item);
+        gxtable.openEditorRow(idItem);
     });
     Bdelete.bootstrap_confirm_delete({
-        heading: 'Delete ' + item.id,
+        heading: 'Delete ' + idItem,
         message: 'Are you sure you want to delete this item?',
         btn_ok_label: 'Yes',
         btn_cancel_label: 'Cancel',
         delete_callback: () => {
-            $(`#${item.id}`).remove();
-            gxtable.tableItems.delete(item.id);
+            $(`#${idItem}`).remove();
+            delete gxtable.tableItems[idItem];
             console.log('delete button clicked');
         },
         cancel_callback: () => {
@@ -252,27 +245,28 @@ gxTable.prototype.addRow = function (item) {
         $(this).find('td').css("white-space", "nowrap");
     });
     this.tableGxBody.append(trRow);
-    this.tableItems.set(item.id, item);
 }
 
-gxTable.prototype.updateRow = function (item) {
+gxTable.prototype.updateRow = function (itemId) {
+    var dataItem = this.tableItems[itemId];
     this.columnsHead.forEach(element => {
-        $(`#${item.id}-${element}`).text(item[element]);
+        $(`#${itemId}-${element}`).text(dataItem[element]);
     });
 }
 
-gxTable.prototype.openEditorRow = function (item) {
+gxTable.prototype.openEditorRow = function (itemId) {
+    let dataItem = this.tableItems[itemId];
     this.modalEditRow.modal('show');
-    this.modalRowEditLabelId.text(item.id);
+    this.modalRowEditLabelId.text(itemId);
     this.columnsHead.forEach(element => {
-        $(`#t-${element}`).val(item[element]);
+        $(`#t-${element}`).val(dataItem[element]);
     });
     var gxtable = this;
     this.modalButtonSaveEditRow.off("click").click(function () {
         gxtable.columnsHead.forEach(column => {
-            item[column] = $(`#t-${column}`).val();
+            dataItem[column] = $(`#t-${column}`).val();
         });
-        gxtable.updateRow(item);
+        gxtable.updateRow(itemId);
     });
 }
 
@@ -305,7 +299,7 @@ gxTable.prototype.removeColumnName = function (column) {
 }
 
 gxTable.prototype.addColumnToTableJS = function (pos, content) {
-    table = this.tableGxRoot[0];
+    var table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
     if (!pos && pos !== 0) {
         pos = columns - 1;
@@ -321,7 +315,7 @@ gxTable.prototype.addColumnToTableJS = function (pos, content) {
 }
 
 gxTable.prototype.removeColumInTableJs = function(pos) {
-    table = this.tableGxRoot[0];
+    var table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
     if(pos > 0 && pos < columns){
         for (var r = 0; r < table.rows.length; r++) {
@@ -331,7 +325,8 @@ gxTable.prototype.removeColumInTableJs = function(pos) {
 }
 
 gxTable.prototype.savaTableTrAsJson = function() {
-    download(JSON.stringify(this.tableItems), this.tableName+".json", 'text/plain');
+    var gxtable = this;
+    download(JSON.stringify(gxtable.tableItems), gxtable.settings.name+".json", 'text/plain');
     console.log("dowload table As Json");
 }
 

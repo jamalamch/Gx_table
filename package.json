@@ -1,0 +1,36 @@
+{
+  "name": "gx-table",
+  "version": "1.0.0",
+  "description": "The easy to use, fully featured, interactive table JavaScript",
+  "main": "gx-table.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamalamch/Gx_table.git"
+  },
+  "keywords": [
+    "table",
+    "confirm",
+    "delete",
+    "modal",
+    "extension",
+    "plugin",
+    "row",
+    "coloumn"
+  ],
+  "author": "Amchart jamal <jamalamchart@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jamalamch/Gx_table/issues"
+  },
+  "homepage": "https://jamalamch.github.io/Gx_table",
+  "dependencies": {
+    "bootstrap": "^4.5.3",
+    "jquery": "^3.5.1"
+  },
+  "directories": {
+    "doc": "docs"
+  }
+}

@@ -26,3 +26,8 @@ var table = $('.container').gxTable({
         }
     }
 });
+
+
+$('#save-table').on('click', function() {
+    table.savaTableTrAsJson();
+});

@@ -8,9 +8,9 @@ function gxTable(element, options) {
             columnID: 'ID',
             columns: [],
             data: {},
-            url : null,
-            editRow : false,
-            editColumn : false,
+            url: null,
+            editRow: false,
+            editColumn: false,
         }, options || {}
     );
     this.tableItems = options.data;
@@ -25,10 +25,10 @@ function gxTable(element, options) {
     this.modalRowEditLabelId;
     this.modalButtonSaveEditRow;
 
-    this.modelAddColumn ;
-    this.modelColumnLabelName ;
-    this.modelBodyAddColumn ;
-    this.modelButtonSaveAddColumn ;
+    this.modelAddColumn;
+    this.modelColumnLabelName;
+    this.modelBodyAddColumn;
+    this.modelButtonSaveAddColumn;
     this.build();
 }
 
@@ -37,7 +37,7 @@ gxTable.prototype.build = function () {
     this.initModelEditor();
     this.initmodalAddColumn();
     if (this.tableItems) {
-        for(var itemId in this.tableItems){
+        for (var itemId in this.tableItems) {
             this.addRow(itemId);
         };
     }
@@ -69,13 +69,13 @@ gxTable.prototype.initTable = function () {
             </th>
         `);
         bRemoveColumn = $('<button class="float-right btn-icon  ml-1 mdi mdi-close"> </button>');
-        bRemoveColumn.bootstrap_confirm_delete({
+        bRemoveColumn.gx_confirm_delete({
             heading: 'Delete ' + column,
             message: 'Are you sure you want to delete this column?',
             btn_ok_label: 'Yes',
             btn_cancel_label: 'Cancel',
             delete_callback: () => {
-                console.log(column+' was Deleted');
+                console.log(column + ' was Deleted');
                 gxtable.removeColumnName(column);
             },
             cancel_callback: () => {
@@ -162,7 +162,7 @@ gxTable.prototype.initmodalAddColumn = function () {
                 </div>
             </div>
         `);
-        
+
         this.modelAddColumn = $('#modal-add-column');
         this.modelBodyAddColumn = $('dd-column-body');
         this.modelColumnLabelName = $('#add-column-name');
@@ -203,6 +203,9 @@ gxTable.prototype.addRow = function (idItem) {
     rowHead.append(bCopieHead);
     trRow.append(rowHead);
     this.columnsHead.forEach(column => {
+        if (dataItem[column] === undefined) {
+            dataItem[column] = "";
+        }
         var trdWord = $(`
             <td id="${idItem}-${column}"> ${dataItem[column]}</td>
         `);
@@ -219,7 +222,7 @@ gxTable.prototype.addRow = function (idItem) {
     Bedite.click(function () {
         gxtable.openEditorRow(idItem);
     });
-    Bdelete.bootstrap_confirm_delete({
+    Bdelete.gx_confirm_delete({
         heading: 'Delete ' + idItem,
         message: 'Are you sure you want to delete this item?',
         btn_ok_label: 'Yes',
@@ -289,7 +292,7 @@ gxTable.prototype.addColumn = function (column) {
 }
 
 gxTable.prototype.removeColumnName = function (column) {
-    if(this.columnsHead.includes(column)){
+    if (this.columnsHead.includes(column)) {
         var index = this.columnsHead.indexOf(column);
         if (index > -1) {
             this.columnsHead.splice(index, 1);
@@ -298,35 +301,53 @@ gxTable.prototype.removeColumnName = function (column) {
     }
 }
 
-gxTable.prototype.addColumnToTableJS = function (pos, content) {
+gxTable.prototype.addColumnToTableJS = function (pos, column) {
     var table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
     if (!pos && pos !== 0) {
         pos = columns - 1;
     }
+
+    var gxtable = this;
+    bRemoveColumn = $('<button class="float-right btn-icon  ml-1 mdi mdi-close"> </button>');
+    bRemoveColumn.gx_confirm_delete({
+        heading: 'Delete ' + column,
+        message: 'Are you sure you want to delete this column?',
+        btn_ok_label: 'Yes',
+        btn_cancel_label: 'Cancel',
+        delete_callback: () => {
+            console.log(column + ' was Deleted');
+            gxtable.removeColumnName(column);
+        },
+        cancel_callback: () => {
+            console.log('cancel Delete Languages');
+        },
+    });
+
     var cell = table.rows[0].insertCell(pos);
-    cell.outerHTML = `<th>${content}</th>`;
+    cell.outerHTML = `<th>${column}</th>`;
+    $(table.rows[0].cells[pos]).append(bRemoveColumn)
 
     for (var r = 1; r < table.rows.length; r++) {
         var cell = table.rows[r].insertCell(pos);
         var itemId = table.rows[r].id;
-        cell.id = itemId + '-' + content;
+        cell.id = itemId + '-' + column;
     }
 }
 
-gxTable.prototype.removeColumInTableJs = function(pos) {
+gxTable.prototype.removeColumInTableJs = function (pos) {
     var table = this.tableGxRoot[0];
     var columns = table.rows[0].getElementsByTagName('th').length;
-    if(pos > 0 && pos < columns){
+    if (pos > 0 && pos < columns) {
         for (var r = 0; r < table.rows.length; r++) {
             table.rows[r].deleteCell(pos);
         }
     }
 }
 
-gxTable.prototype.savaTableTrAsJson = function() {
+gxTable.prototype.savaTableTrAsJson = function () {
     var gxtable = this;
-    download(JSON.stringify(gxtable.tableItems), gxtable.settings.name+".json", 'text/plain');
+    download(JSON.stringify(gxtable.tableItems), gxtable.settings.name + ".json", 'text/plain');
     console.log("dowload table As Json");
 }
 
@@ -359,3 +380,101 @@ $.fn.gxTable = function (options) {
     element.data('gx-traducter', plugin);
     return plugin;
 }
+
+var gx_confirm_delete = function (element, options) {
+    this.element = $(element);
+    this.settings = $.extend(
+        {
+            heading: 'Delete',
+            message: 'Are you sure you want to delete this item?',
+            btn_ok_label: 'Yes',
+            btn_cancel_label: 'Cancel',
+            callback: null,
+            delete_callback: null,
+            cancel_callback: null
+        }, options || {}
+    );
+
+    this.onDelete = function (event) {
+        event.preventDefault();
+
+        var plugin = $(this).data('gx_confirm_delete');
+
+        if (null === document.getElementById('gx_confirm_delete-container')) {
+            $('body').append(`
+                <div id="gx_confirm_delete-container">
+                <div id="gx-confirm-dialog" class="modal fade">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 id="gx-confirm-dialog-heading"></h4>
+                                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                            </div>
+                            <div class="modal-body">
+                                <p id="gx-confirm-dialog-text"></p>
+                            </div>
+                            <div class="modal-footer">
+                                <a id="gx-confirm-dialog-cancel-delete-btn" type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</a>
+                                <a id="gx-confirm-dialog-delete-btn" href="#" class="btn btn-danger pull-right">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                `);
+        }
+
+        $('#gx-confirm-dialog-heading').html(plugin.settings.heading);
+        $('#gx-confirm-dialog-text').html(plugin.settings.message);
+        $('#gx-confirm-dialog-delete-btn').html(plugin.settings.btn_ok_label);
+        $('#gx-confirm-dialog-cancel-delete-btn').html(plugin.settings.btn_cancel_label);
+        $('#gx-confirm-dialog').modal('toggle');
+
+        var deleteBtn = $('a#gx-confirm-dialog-delete-btn');
+        var cancelBtn = $('a#gx-confirm-dialog-cancel-delete-btn');
+        var hasCallback = false;
+
+        if (null !== plugin.settings.callback) {
+            if ($.isFunction(plugin.settings.callback)) {
+                deleteBtn.attr('data-dismiss', 'modal').off('.bs-confirm-delete').on('click.bs-confirm-delete', { originalObject: $(this) }, plugin.settings.callback);
+                hasCallback = true;
+            }
+            else {
+                console.log(plugin.settings.callback + ' is not a valid callback');
+            }
+        }
+        if (null !== plugin.settings.delete_callback) {
+            if ($.isFunction(plugin.settings.delete_callback)) {
+                deleteBtn.attr('data-dismiss', 'modal').off('.bs-confirm-delete').on('click.bs-confirm-delete', { originalObject: $(this) }, plugin.settings.delete_callback);
+                hasCallback = true;
+            }
+            else {
+                console.log(plugin.settings.delete_callback + ' is not a valid callback');
+            }
+        }
+        if (!hasCallback && '' !== event.currentTarget.href) {
+            deleteBtn.attr('href', event.currentTarget.href);
+        }
+
+        if (null !== plugin.settings.cancel_callback) {
+            cancelBtn.off('.bs-confirm-delete').on('click.bs-confirm-delete', { originalObject: $(this) }, plugin.settings.cancel_callback);
+        }
+    };
+};
+
+$.fn.gx_confirm_delete = function (options) {
+    return this.each(function () {
+        var element = $(this);
+
+        if (element.data('gx_confirm_delete')) {
+            return element.data('gx_confirm_delete');
+        }
+
+        var plugin = new gx_confirm_delete(this, options);
+
+        element.data('gx_confirm_delete', plugin);
+        element.off('.bs-confirm-delete').on('click.bs-confirm-delete', plugin.onDelete);
+
+        return plugin;
+    });
+};

@@ -3,7 +3,7 @@
 
 An easy to use interactive table generation JavaScript 
 
-Full documentation & demos can be found at: [http://test.test.info](http://Gx_table.info)
+Full documentation & demos can be found at: [https://jamalamch.github.io/Gx_table](https://jamalamch.github.io/Gx_table)
 ***
 ![Gx_Table](docs/src/img/gx-table-test0.png)
 ***
@@ -23,11 +23,11 @@ Include the library and the css
 ```html
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" >
     <link rel="stylesheet" href="https://cdn.materialdesignicons.com/5.6.55/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="src/css/gx-table.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gx-table@1.0.0/gx-table.css">
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="src/js/gx-table.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/gx-table@1.0.0/gx-table.js" ></script>
 ```
 
 Create an element to hold the table
@@ -67,4 +67,17 @@ var table = $('.container').gxTable({
         }
     }
 });
+```
+
+### NPM Installation
+To get Tabulator via the NPM package manager, open a terminal in your project directory and run the following commmand:
+```
+npm i gx-table
+```
+
+### CDN - UNPKG
+To access Tabulator directly from the UNPKG CDN servers, include the following two lines at the start of your project, instead of the localy hosted versions:
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gx-table@1.0.0/gx-table.css">
+<script src="https://cdn.jsdelivr.net/npm/gx-table@1.0.0/gx-table.js"></script>
 ```

@@ -1,8 +1,14 @@
 
 var table = $('.container').gxTable({
     tableName: 'table Gx',
+    editRow: true,
+    editColumn: true,
     columns: [
-        "A1", "A2", "A3", "A4", "A5"
+        { label: 'A1', name: 'A1_name'},
+        { label: 'A2',  name: 'A2_name'},
+        { label: 'A3', name: 'A3_name'},
+        { label: 'A4',  name: 'A4_name'},
+        { label: 'A5', name: 'A5_name'},
     ],
     data: {
         "R1-1585": {

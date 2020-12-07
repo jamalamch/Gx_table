@@ -16,7 +16,9 @@
                 columnID: 'ID',
                 columns: [],
                 data: {},
+                select: false,
                 url: null,
+                ajax: null,
                 editRow: false,
                 editColumn: false,
             }, options || {}
@@ -43,7 +45,12 @@
     gxTable.prototype.build = function () {
         this.initTable();
         this.initModelEditor();
-        this.initmodalAddColumn();
+        if (this.settings.editRow) {
+            this.initModelAddRow();
+        }
+        if (this.settings.editColumn) {
+            this.initModalAddColumn();
+        }
         if (this.tableItems) {
             for (var itemId in this.tableItems) {
                 this.addRow(itemId);
@@ -53,6 +60,9 @@
 
     gxTable.prototype.initTable = function () {
         this.element.append(`
+        <div class="mb-1">
+            <button id="button-add-row" class="btn btn-sm btn-outline-info text-dark px-5" type="button"> New </button>
+        </div>
         <div class="table-responsive">
             <table id="table-gx-root" class="table table-bordered table-hover table-sm table-striped">
                 <thead id="table-gx-thead">
@@ -93,11 +103,17 @@
             thColumn.append(bRemoveColumn);
             this.tableTrColomHead.append(thColumn);
         })
-        var bAddColumn = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
-        bAddColumn.click(function () {
-            gxtable.openEditColumn();
-        });
-        this.tableTrColomHead.append($('<th></th>').append(bAddColumn));
+        if(this.settings.editColumn){
+            var bAddColumn = $(`<button class="btn-icon border  border-dark rounded px-2 ml-1 mdi mdi-plus-thick"> </button>`);
+            bAddColumn.on('click', function () {
+                gxtable.openEditColumn();
+            });
+            this.tableTrColomHead.append($('<th id="th-edit-column"></th>').append(bAddColumn));
+        }
+        this.buttonAddRow = $('#button-add-row');
+        this.buttonAddRow.on('click', function () {
+            gxtable.openAddRow();
+        })
     }
 
     gxTable.prototype.initModelEditor = function () {
@@ -140,7 +156,51 @@
         })
     }
 
-    gxTable.prototype.initmodalAddColumn = function () {
+    gxTable.prototype.initModelAddRow = function () {
+        if (null === document.getElementById('model-add-row')) {
+            $('body').append(`
+            <div class="modal" id="model-add-row">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Add Row</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <!-- Modal body -->
+                        <div id="model-add-row-body" class="modal-body" >   
+                            <div class="form-group row">
+                                <label class="col-sm-4 " for="add-column-name"> column ID :</label>
+                                <input id="add-row-id" type="text" class="form-control col-sm-7" ></textarea>
+                            </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button id="add-row-save" type="button" class="btn btn-secondary" data-dismiss="modal">SAVE</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        `);
+
+            this.modalAddRow = $('#model-add-row');
+            this.modalAddRowLabelId = $('#add-row-id')
+            this.modalAddRowBody = $('#model-add-row-body');
+            this.modalButtonSaveAddRow = $('#add-row-save');
+        }
+        this.columnsHead.forEach(colum => {
+            this.addColumnToModelAddRow(colum);
+        })
+        this.modalAddRow.on('shown.bs.modal', function () {
+            $(this).find('.textar-input').each(function (index, element) {
+                element.style.height = "1px";
+                element.style.height = (this.scrollHeight + 1.1) + "px";
+            })
+        })
+    }
+
+    gxTable.prototype.initModalAddColumn = function () {
         if (null === document.getElementById('modal-add-column')) {
             $('body').append(`
             <div class="modal" id="modal-add-column">
@@ -192,6 +252,20 @@
         this.modalEditRowBody.append(editAreWord.append(textarInput));
     }
 
+    gxTable.prototype.addColumnToModelAddRow = function (column) {
+        var editAreWord = $(`
+        <div class="form-group row">
+            <label class="text-capitalize col-sm-2 form-control-sm" for="t-${column}">${column}:</label>
+        </div>
+    `);
+        var textarInput = $(`<textarea class="textar-input form-control form-control-sm col-sm-9 rows="1" id="d-${column}"></textarea>`);
+        textarInput.on('input', function () {
+            this.style.height = "1px";
+            this.style.height = (this.scrollHeight + 1.1) + "px";
+        });
+        this.modalAddRowBody.append(editAreWord.append(textarInput));
+    }
+
     gxTable.prototype.addRow = function (idItem) {
         var dataItem = this.tableItems[idItem];
         var trRow = $(`<tr id="${idItem}"></tr>`);
@@ -201,11 +275,11 @@
                 ${idItem}
             </div>
         </td>
-    `)
+        `)
         var bCopieHead = $(`
-        <button class="btn-icon float-right mdi mdi-content-copy"></button>
-    `);
-        bCopieHead.click(function () {
+            <button class="btn-icon float-right mdi mdi-content-copy"></button>
+        `);
+        bCopieHead.on('click', function () {
             copieText(idItem)
         });
         rowHead.append(bCopieHead);
@@ -219,42 +293,44 @@
         `);
             trRow.append(trdWord);
         })
-
-        var Bdelete = $(`
-        <button type="button" class="btn-icon  mdi mdi-delete-forever "></button>
-    `);
-        var Bedite = $(`
-        <button type="button" class="btn-icon  mdi mdi-file-document-edit"></button>
-    `);
-        var gxtable = this;
-        Bedite.click(function () {
-            gxtable.openEditorRow(idItem);
-        });
-        Bdelete.gx_confirm_delete({
-            heading: 'Delete ' + idItem,
-            message: 'Are you sure you want to delete this item?',
-            btn_ok_label: 'Yes',
-            btn_cancel_label: 'Cancel',
-            delete_callback: () => {
-                $(`#${idItem}`).remove();
-                delete gxtable.tableItems[idItem];
-                console.log('delete button clicked');
-            },
-            cancel_callback: () => {
-                console.log('cancel button clicked');
-            },
-        })
-        var GroupEdit = $(`
-        <td></td>
-    `);
-        GroupEdit.append(Bedite);
-        GroupEdit.append(Bdelete)
-        trRow.append(GroupEdit);
-        trRow.hover(function () {
+        if (this.settings.editRow) {
+            var Bdelete = $(`
+                <button type="button" class="btn-icon  mdi mdi-delete-forever "></button>
+            `);
+            var Bedite = $(`
+                <button type="button" class="btn-icon  mdi mdi-file-document-edit"></button>
+            `);
+            var gxtable = this;
+            Bedite.on('click', function () {
+                gxtable.openEditorRow(idItem);
+            });
+            Bdelete.gx_confirm_delete({
+                heading: 'Delete ' + idItem,
+                message: 'Are you sure you want to delete this item?',
+                btn_ok_label: 'Yes',
+                btn_cancel_label: 'Cancel',
+                delete_callback: () => {
+                    $(`#${idItem}`).remove();
+                    delete gxtable.tableItems[idItem];
+                    console.log('delete button clicked');
+                },
+                cancel_callback: () => {
+                    console.log('cancel button clicked');
+                },
+            })
+            var GroupEdit = $(`
+                <td></td>
+            `);
+            GroupEdit.append(Bedite);
+            GroupEdit.append(Bdelete)
+            trRow.append(GroupEdit);
+        }
+        trRow.on('mouseenter', function () {
             $(this).find('td').css("white-space", "normal");
-        }, function () {
-            $(this).find('td').css("white-space", "nowrap");
-        });
+        })
+            .on('mouseleave', function () {
+                $(this).find('td').css("white-space", "nowrap");
+            });
         this.tableGxBody.append(trRow);
     }
 
@@ -278,6 +354,24 @@
                 dataItem[column] = $(`#t-${column}`).val();
             });
             gxtable.updateRow(itemId);
+        });
+    }
+
+    gxTable.prototype.openAddRow = function () {
+        this.modalAddRow.modal('show');
+        this.modalAddRowLabelId.val('');
+        this.columnsHead.forEach(element => {
+            $(`#d-${element}`).val('');
+        });
+        var gxtable = this;
+        this.modalButtonSaveAddRow.off("click").on('click', function () {
+            var newItem = {};
+            gxtable.columnsHead.forEach(column => {
+                newItem[column] = $(`#d-${column}`).val();
+            });
+            var newId = gxtable.modalAddRowLabelId.val();
+            gxtable.tableItems[newId] = newItem;
+            gxtable.addRow(newId)
         });
     }
 

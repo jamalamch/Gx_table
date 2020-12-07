@@ -24,8 +24,8 @@
   #table-gx-thead th:first-child{
     width: 190px;
   }
-  #table-gx-thead th:last-child{
-    width: 75px;
+  #th-edit-column{
+    width: 80px;
     border: 0;
   }
 
